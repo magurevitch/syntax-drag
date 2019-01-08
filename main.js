@@ -1,7 +1,7 @@
 var canvas = $('canvas');
 var c = canvas.get(0).getContext('2d');
 
-var nodes = [new Node(20,20,"apple"), new Node(30,30,"banana"),new Node(50,50,"cherry")];
+var nodes = [];
 var trace = null;
 var selectedNode = null;
 
@@ -9,6 +9,7 @@ draw();
 canvas.on('mousedown', e => down(e));
 canvas.on('mouseup', e => up(e));
 canvas.on('mousemove', e => move(e))
+canvas.on('mouseleave', e => leave(e))
 
 function Node(x, y, text, parent, pointers) {
   this.x = x;
@@ -22,15 +23,34 @@ function Node(x, y, text, parent, pointers) {
   }
 }
 
+function leave(event) {
+  nodes = nodes.filter(e => e !== selectedNode);
+  nodes.forEach(node => {
+    if(node.parent === selectedNode) {
+      node.parent = null;
+    }
+    if(node.links) {
+      node.links = node.links.filter(e => e !== selectedNode);
+    }
+  });
+
+  selectedNode = null;
+  trace = null;
+  draw();
+}
+
 function down(event) {
     selectedNode = findClosest(event.pageX, event.pageY);
 
-    if (selectedNode){
-      trace = new Node(selectedNode.x, selectedNode.y, "trace");
-      trace.ghosted = true;
-      selectedNode.ghosted = true;
-      draw();
+    if (!selectedNode) {
+      selectedNode = new Node(event.pageX, event.pageY,"eggplant");
+      nodes.push(selectedNode);
     }
+
+    trace = new Node(selectedNode.x, selectedNode.y, "trace");
+    trace.ghosted = true;
+    selectedNode.ghosted = true;
+    draw();
 }
 
 function up(event) {
