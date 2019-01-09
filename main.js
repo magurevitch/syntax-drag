@@ -5,6 +5,8 @@ var nodes = [];
 var trace = null;
 var selectedNode = null;
 
+var mode = {};
+
 draw();
 canvas.on('mousedown', e => down(e));
 canvas.on('mouseup', e => up(e));
@@ -188,3 +190,31 @@ function dropMovement(x,y) {
     selectedNode.parent = closest.parent;
   }
 }
+
+function dropSelect() {}
+
+function makeButton(letter, name, action, type) {
+  index = name.indexOf(letter);
+  newText = index === -1 ? `<u>${letter}<u> ${name}` : `${name.slice(0,index)}<b>${letter}</b>${name.slice(index+1)}`;
+  $('#options tr').last().append(`<td id="${letter}" class="boxed ${type}">${newText}</td>`);
+  $(`#${letter}`).on('mousedown', function(e){
+    $(`.${type}`).removeClass('selected');
+    $(this).addClass('selected');
+    mode[type] = action;
+    $('#message').text(name);
+    console.log(mode);
+  });
+}
+
+$('#options').append('<tr></tr>');
+makeButton('S','Select', dropSelect,'move');makeButton('N','regular Node',null,'create');
+$('#options').append('<tr></tr>');
+makeButton('T','Tree', dropTree, 'move');makeButton('L','Leaf and node',null,'create');
+$('#options').append('<tr></tr>');
+makeButton('M','Movement', dropMovement, 'move');makeButton('X','X-bar node',null,'create');
+$('#options').append('<tr></tr>');
+makeButton('A','Arrows', dropDependency, 'move');
+$('#options').append('<tr></tr>');
+makeButton('C','Catenary', dropCatenary, 'move');
+
+$('#S, #N').trigger('mousedown');
