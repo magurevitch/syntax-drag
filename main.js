@@ -57,8 +57,11 @@ function down(event) {
 
 function up(event) {
     if (selectedNode) {
-      dropMovement(event.pageX, event.pageY);
-      dropMove();
+      closest = findClosest(event.pageX, event.pageY);
+      if (closest) {
+        mode['move'](closest);
+      }
+      deselect();
       draw();
     }
 }
@@ -117,81 +120,61 @@ function findClosest(x, y) {
   return closest;
 }
 
-function dropMove() {
+function deselect() {
   trace = null;
   selectedNode.ghosted = false;
   selectedNode = null;
 }
 
-function dropTree(x,y) {
-  closest = findClosest(x,y);
-
-  if (closest) {
-    if (!closest.parent || closest.parent === selectedNode) {
-      newX = 1/2 * (selectedNode.x + closest.x);
-      newY = 1/2 * (selectedNode.y + closest.y) - 20;
-      node = new Node(newX, newY, "durian");
-      nodes.push(node);
-      closest.parent = node;
-    }
-    selectedNode.parent = closest.parent;
-  }
+function dropSelect(closest) {
+  selectedNode.x = closest.x;
+  selectedNode.y = closest.y;
+  closest.x = trace.x;
+  closest.y = trace.y;
 }
 
-function dropCatenary(x,y) {
-  closest = findClosest(x,y);
-
-  if (closest) {
-    selectedNode.parent = closest;
-    selectedNode.x = trace.x;
-    selectedNode.y = trace.y;
-  }
+function dropCatenary(closest) {
+  selectedNode.parent = closest;
+  selectedNode.x = trace.x;
+  selectedNode.y = trace.y;
 }
 
-function dropDependency(x,y) {
-  closest = findClosest(x,y);
-
-  if (closest) {
-    selectedNode.links = selectedNode.links || [];
-    selectedNode.links.push(closest);
-    selectedNode.x = trace.x;
-    selectedNode.y = trace.y;
-  }
+function dropDependency(closest) {
+  selectedNode.links = selectedNode.links || [];
+  selectedNode.links.push(closest);
+  selectedNode.x = trace.x;
+  selectedNode.y = trace.y;
 }
 
-function dropMovement(x,y) {
-  closest = findClosest(x,y);
-
-  if (closest) {
-    if (selectedNode.parent && selectedNode.parent !== closest.parent) {
-      nodes.forEach(node => {
-        if(node.links) {
-          var index = node.links.indexOf(selectedNode);
-          if(index >= 0) {
-            node.links[index] = trace;
-          }
-        }
-      });
-
-      trace.ghosted = false;
-      trace.parent = selectedNode.parent;
-      trace.links = trace.links || [];
-      trace.links.push(selectedNode);
-      nodes.push(trace);
-    }
-
-    if (!closest.parent || closest.parent === selectedNode) {
-      newX = 1/2 * (selectedNode.x + closest.x);
-      newY = 1/2 * (selectedNode.y + closest.y) - 20;
-      node = new Node(newX, newY, "durian");
-      nodes.push(node);
-      closest.parent = node;
-    }
-    selectedNode.parent = closest.parent;
+function dropTree(closest) {
+  if (!closest.parent || closest.parent === selectedNode) {
+    newX = 1/2 * (selectedNode.x + closest.x);
+    newY = 1/2 * (selectedNode.y + closest.y) - 20;
+    node = new Node(newX, newY, "durian");
+    nodes.push(node);
+    closest.parent = node;
   }
+  selectedNode.parent = closest.parent;
 }
 
-function dropSelect() {}
+function dropMovement(closest) {
+  if (selectedNode.parent && selectedNode.parent !== closest.parent) {
+    nodes.forEach(node => {
+      var index = node.links ? node.links.indexOf(selectedNode) : -1;
+      if(index >= 0) {
+        node.links[index] = trace;
+      }
+    });
+
+    trace.ghosted = false;
+    trace.parent = selectedNode.parent;
+    trace.links = trace.links || [];
+    trace.links.push(selectedNode);
+    nodes.push(trace);
+  }
+
+  dropTree(closest);
+}
 
 function makeButton(letter, name, action, type) {
   index = name.indexOf(letter);
@@ -202,7 +185,6 @@ function makeButton(letter, name, action, type) {
     $(this).addClass('selected');
     mode[type] = action;
     $('#message').text(name);
-    console.log(mode);
   });
 }
 
