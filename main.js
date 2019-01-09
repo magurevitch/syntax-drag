@@ -175,7 +175,7 @@ function dropMovement(closest) {
   dropTree(closest);
 }
 
-function makeButton(letter, name, action, type) {
+function makeButton(letter, name, action, type, message) {
   index = name.indexOf(letter);
   newText = index === -1 ? `<u>${letter}<u> ${name}` : `${name.slice(0,index)}<b>${letter}</b>${name.slice(index+1)}`;
   $('#options tr').last().append(`<td id="${letter}" class="boxed ${type}">${newText}</td>`);
@@ -183,22 +183,28 @@ function makeButton(letter, name, action, type) {
     $(`.${type}`).removeClass('selected');
     $(this).addClass('selected');
     mode[type] = action;
-    $('#message').text(name);
+    $('#message').text(message);
   });
 }
 
 $('#options').append('<tr></tr>');
-makeButton('S','Select', dropSelect,'move');makeButton('N','regular Node',null,'create');
+makeButton('S','Select', dropSelect,'move','select and move around (and switch) nodes');
+makeButton('N','regular Node',null,'create','clicking the canvas creates a single node');
 $('#options').append('<tr></tr>');
-makeButton('T','Tree', dropTree, 'move');makeButton('L','Leaf and node',null,'create');
+makeButton('T','Tree', dropTree, 'move','merges nodes into a tree structure');
+makeButton('L','Leaf and node',null,'create', 'clicking the canvas makes a node and text underneath it');
 $('#options').append('<tr></tr>');
-makeButton('M','Movement', dropMovement, 'move');makeButton('X','X-bar node',null,'create');
+makeButton('M','Movement', dropMovement, 'move', 'merges nodes into a tree structure with movement');
+makeButton('X','X-bar node',null,'create', "clicking the canvas makes an X' style tree with a head, a bar layer, and a phrase layer");
 $('#options').append('<tr></tr>');
-makeButton('A','Arrows', dropDependency, 'move');
+makeButton('A','Arrows', dropDependency, 'move', 'draws arrows to nodes');
 $('#options').append('<tr></tr>');
-makeButton('C','Catenary', dropCatenary, 'move');
+makeButton('C','Catenary', dropCatenary, 'move', 'attaches nodes in a catenary');
 
 $('#S, #N').trigger('mousedown');
 $('body').on('keypress',function(event){
   $(`#${event.key.toUpperCase()}`).trigger('mousedown');
 })
+$('canvas').on('mouseenter', function(event){
+  $('#message').text("Click anywhere to make a node, push down on a node to drag it, and drag nodes out of the canvas to delete them");
+});
