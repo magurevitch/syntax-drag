@@ -172,7 +172,6 @@ function dropMovement(closest) {
     trace.links.push(selectedNode);
     nodes.push(trace);
   }
-
   dropTree(closest);
 }
 
@@ -200,3 +199,6 @@ $('#options').append('<tr></tr>');
 makeButton('C','Catenary', dropCatenary, 'move');
 
 $('#S, #N').trigger('mousedown');
+$('body').on('keypress',function(event){
+  $(`#${event.key.toUpperCase()}`).trigger('mousedown');
+})
