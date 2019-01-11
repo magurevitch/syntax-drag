@@ -61,7 +61,9 @@ function up(event) {
       if (closest) {
         mode['move'](closest);
       }
-      deselect();
+      trace = null;
+      selectedNode.ghosted = false;
+      selectedNode = null;
       draw();
     }
 }
@@ -80,10 +82,10 @@ function draw() {
     trace.draw();
   }
   nodes.forEach(node => {
-    node.draw();
     if(node.parent) {
       c.beginPath();
-      c.moveTo(node.x, node.y);
+      c.lineWidth = 3;
+      c.moveTo(node.x, node.y-5);
       c.lineTo(node.parent.x, node.parent.y);
       c.stroke();
     }
@@ -92,15 +94,17 @@ function draw() {
       node.links.forEach(link => {
         factor = node.parent || link.parent ? 1 : -1;
 
-        averageX = 1/2 * (node.x + link.x);
-        averageY = 1/2 * (node.y + link.y);
-
         c.beginPath();
+        c.lineWidth = 1;
         c.moveTo(node.x, node.y);
-        c.bezierCurveTo(averageX-10, averageY+factor*15, averageX+10, averageY+factor*15, link.x, link.y);
+        c.bezierCurveTo(node.x, node.y+factor*20, link.x, link.y+factor*20, link.x, link.y+factor*5);
+        c.lineTo(link.x-5,link.y+factor*10);
+        c.lineTo(link.x+5,link.y+factor*10);
+        c.lineTo(link.x,link.y+factor*5);
         c.stroke();
       });
     }
+    node.draw();
   });
 
 }
@@ -118,12 +122,6 @@ function findClosest(x, y) {
     }
   });
   return closest;
-}
-
-function deselect() {
-  trace = null;
-  selectedNode.ghosted = false;
-  selectedNode = null;
 }
 
 function dropSelect(closest) {
@@ -205,6 +203,6 @@ $('#S, #N').trigger('mousedown');
 $('body').on('keypress',function(event){
   $(`#${event.key.toUpperCase()}`).trigger('mousedown');
 })
-$('canvas').on('mouseenter', function(event){
+canvas.on('mouseenter', function(event){
   $('#message').text("Click anywhere to make a node, push down on a node to drag it, and drag nodes out of the canvas to delete them");
 });
