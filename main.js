@@ -13,10 +13,11 @@ canvas.on('mouseup', e => up(e));
 canvas.on('mousemove', e => move(e))
 canvas.on('mouseleave', e => leave(e))
 
-function Node(x, y, text, parent, pointers) {
+function Node(x, y, text, parent) {
   this.x = x;
   this.y = y;
   this.text = text;
+  this.parent = parent;
 
   this.draw = function() {
     c.fillStyle = this.ghosted ? 'gray' : 'black';
@@ -52,6 +53,7 @@ function down(event) {
     trace = new Node(selectedNode.x, selectedNode.y, "trace");
     trace.ghosted = true;
     selectedNode.ghosted = true;
+    mode['branching']();
     draw();
 }
 
@@ -173,6 +175,35 @@ function dropMovement(closest) {
   dropTree(closest);
 }
 
+function findChildren() {
+  var children = {};
+  nodes.forEach(node => {
+    if(node.parent) {
+      index=nodes.indexOf(node.parent);
+      children[index] = children[index] || [];
+      children[index].push(node);
+    }
+  });
+  return children;
+}
+
+function makeBinary() {
+  children = findChildren();
+
+  for(index in children) {
+    node = nodes[index];
+    childNodes = children[index];
+    while(childNodes.length > 2) {
+      var nodeToMove = childNodes.pop();
+      var newNode = new Node(node.x+10,node.y+10,node.text,node);
+      childNodes.forEach(child => {
+        child.parent = newNode;
+      });
+      nodes.push(newNode);
+    }
+  }
+}
+
 function makeButton(letter, name, action, type, message) {
   index = name.indexOf(letter);
   newText = index === -1 ? `<u>${letter}<u> ${name}` : `${name.slice(0,index)}<b>${letter}</b>${name.slice(index+1)}`;
@@ -188,9 +219,11 @@ function makeButton(letter, name, action, type, message) {
 $('#options').append('<tr></tr>');
 makeButton('S','Select', dropSelect,'move','select and move around (and switch) nodes');
 makeButton('N','regular Node',null,'create','clicking the canvas creates a single node');
+makeButton('P','Permit multi-branched trees',()=>{},'branching','allow for multi-branched trees');
 $('#options').append('<tr></tr>');
 makeButton('T','Tree', dropTree, 'move','merges nodes into a tree structure');
 makeButton('L','Leaf and node',null,'create', 'clicking the canvas makes a node and text underneath it');
+makeButton('B','Binary trees',makeBinary,'branching','force trees to become binary');
 $('#options').append('<tr></tr>');
 makeButton('M','Movement', dropMovement, 'move', 'merges nodes into a tree structure with movement');
 makeButton('X','X-bar node',null,'create', "clicking the canvas makes an X' style tree with a head, a bar layer, and a phrase layer");
@@ -199,7 +232,7 @@ makeButton('A','Arrows', dropDependency, 'move', 'draws arrows to nodes');
 $('#options').append('<tr></tr>');
 makeButton('C','Catenary', dropCatenary, 'move', 'attaches nodes in a catenary');
 
-$('#S, #N').trigger('mousedown');
+$('#S, #N, #P').trigger('mousedown');
 $('body').on('keypress',function(event){
   $(`#${event.key.toUpperCase()}`).trigger('mousedown');
 })
