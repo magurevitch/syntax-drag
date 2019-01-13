@@ -26,6 +26,27 @@ function Node(x, y, text, parent) {
   }
 }
 
+function LeafNode(x, y, text, parent) {
+  this.x = x;
+  this.y = y;
+  this.text = text;
+  this.leaf = "apple";
+  this.parent = parent;
+
+  this.draw = function() {
+    c.fillStyle = this.ghosted ? 'gray' : 'black';
+    c.textAlign = "center";
+    c.fillText(this.text,this.x,this.y)
+    c.beginPath();
+    c.lineWidth = 1;
+    c.setLineDash([3,2]);
+    c.moveTo(this.x,this.y);
+    c.lineTo(this.x,this.y+25);
+    c.stroke();
+    c.fillText(this.leaf,this.x,this.y+30)
+  }
+}
+
 function leave(event) {
   nodes = nodes.filter(e => e !== selectedNode);
   nodes.forEach(node => {
@@ -46,7 +67,7 @@ function down(event) {
     selectedNode = findClosest(event.pageX, event.pageY);
 
     if (!selectedNode) {
-      selectedNode = new Node(event.pageX, event.pageY,"eggplant");
+      selectedNode = mode['create'](event.pageX, event.pageY,"eggplant");
       nodes.push(selectedNode);
     }
 
@@ -86,6 +107,7 @@ function draw() {
   nodes.forEach(node => {
     if(node.parent) {
       c.beginPath();
+      c.setLineDash([]);
       c.lineWidth = 3;
       c.moveTo(node.x, node.y-5);
       c.lineTo(node.parent.x, node.parent.y);
@@ -97,9 +119,10 @@ function draw() {
         factor = node.parent || link.parent ? 1 : -1;
 
         c.beginPath();
+        c.setLineDash([]);
         c.lineWidth = 1;
         c.moveTo(node.x, node.y);
-        c.bezierCurveTo(node.x, node.y+factor*20, link.x, link.y+factor*20, link.x, link.y+factor*5);
+        c.bezierCurveTo(node.x, node.y+factor*30, link.x, link.y+factor*30, link.x, link.y+factor*5);
         c.lineTo(link.x-5,link.y+factor*10);
         c.lineTo(link.x+5,link.y+factor*10);
         c.lineTo(link.x,link.y+factor*5);
@@ -196,13 +219,22 @@ function makeBinary() {
     while(childNodes.length > 2) {
       var nodeToMove = childNodes.pop();
       var newNode = new Node(node.x+10,node.y+10,node.text,node);
+      nodes.push(newNode);
       childNodes.forEach(child => {
         child.parent = newNode;
       });
-      nodes.push(newNode);
     }
   }
 }
+
+function newXBar(x,y,text){
+  phrase = new Node(x, y, text+"P");
+  bar = new Node(x, y+30, text+"'",phrase);
+  nodes.push(bar);
+  head = new Node(x, y+60, text+"0",bar);
+  nodes.push(head);
+  return phrase;
+};
 
 function makeButton(letter, name, action, type, message) {
   index = name.indexOf(letter);
@@ -218,15 +250,15 @@ function makeButton(letter, name, action, type, message) {
 
 $('#options').append('<tr></tr>');
 makeButton('S','Select', dropSelect,'move','select and move around (and switch) nodes');
-makeButton('N','regular Node',null,'create','clicking the canvas creates a single node');
+makeButton('N','regular Node',(x,y,text) => new Node(x,y,text),'create','clicking the canvas creates a single node');
 makeButton('P','Permit multi-branched trees',()=>{},'branching','allow for multi-branched trees');
 $('#options').append('<tr></tr>');
 makeButton('T','Tree', dropTree, 'move','merges nodes into a tree structure');
-makeButton('L','Leaf and node',null,'create', 'clicking the canvas makes a node and text underneath it');
+makeButton('L','Leaf and node',(x,y,text) => new LeafNode(x,y,text),'create', 'clicking the canvas makes a node and text underneath it');
 makeButton('B','Binary trees',makeBinary,'branching','force trees to become binary');
 $('#options').append('<tr></tr>');
 makeButton('M','Movement', dropMovement, 'move', 'merges nodes into a tree structure with movement');
-makeButton('X','X-bar node',null,'create', "clicking the canvas makes an X' style tree with a head, a bar layer, and a phrase layer");
+makeButton('X','X-bar node',newXBar,'create', "clicking the canvas makes an X' style tree with a head, a bar layer, and a phrase layer");
 $('#options').append('<tr></tr>');
 makeButton('A','Arrows', dropDependency, 'move', 'draws arrows to nodes');
 $('#options').append('<tr></tr>');
