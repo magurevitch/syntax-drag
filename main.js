@@ -30,7 +30,7 @@ function LeafNode(x, y, text, parent) {
   this.x = x;
   this.y = y;
   this.text = text;
-  this.leaf = "apple";
+  this.leaf = $('#leaf').val();
   this.parent = parent;
 
   this.draw = function() {
@@ -67,7 +67,7 @@ function down(event) {
     selectedNode = findClosest(event.pageX, event.pageY);
 
     if (!selectedNode) {
-      selectedNode = mode['create'](event.pageX, event.pageY,"eggplant");
+      selectedNode = mode['create'](event.pageX, event.pageY,$('#node').val());
       nodes.push(selectedNode);
     }
 
@@ -173,7 +173,7 @@ function dropTree(closest) {
   if (!closest.parent || closest.parent === selectedNode) {
     newX = 1/2 * (selectedNode.x + closest.x);
     newY = 1/2 * (selectedNode.y + closest.y) - 20;
-    node = new Node(newX, newY, "durian");
+    node = new Node(newX, newY, $('#parent').val());
     nodes.push(node);
     closest.parent = node;
   }
@@ -231,7 +231,7 @@ function newXBar(x,y,text){
   phrase = new Node(x, y, text+"P");
   bar = new Node(x, y+30, text+"'",phrase);
   nodes.push(bar);
-  head = new Node(x, y+60, text+"0",bar);
+  head = new LeafNode(x, y+60, text+"0",bar);
   nodes.push(head);
   return phrase;
 };
@@ -268,6 +268,24 @@ $('#S, #N, #P').trigger('mousedown');
 $('body').on('keypress',function(event){
   $(`#${event.key.toUpperCase()}`).trigger('mousedown');
 })
+$('#inputs').on('keypress',function(event){
+  event.stopPropagation();
+})
+
+
+function makeInput(name){
+  $('#inputs').append(`<b>${name}:</b>`);
+  $('#inputs').append(`<input type="text" id="${name}" value="${name}"></input>`);
+  $('#inputs').append(`<br>`);
+  $(`#${name}`).on('mouseenter',function(event){
+    $('#message').text(`set default text for new ${name}`);
+  });
+}
+
+makeInput('node');
+makeInput('parent');
+makeInput('leaf');
+
 canvas.on('mouseenter', function(event){
   $('#message').text("Click anywhere to make a node, push down on a node to drag it, and drag nodes out of the canvas to delete them");
 });
