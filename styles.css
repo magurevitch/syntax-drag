@@ -2,10 +2,6 @@ canvas {
   border-style: solid;
 }
 
-td:nth-child(2) {
-  text-align: right;
-}
-
 .boxed {
   border-style: solid;
   border-radius: 5px;

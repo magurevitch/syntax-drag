@@ -3,9 +3,18 @@ function draw() {
   if (trace) {
     trace.draw();
   }
+
+  if(closestNode) {
+    c.beginPath();
+    c.ellipse(closestNode.x, closestNode.y, 40, 10, 0, 0, 2 * Math.PI);
+    c.fillStyle = 'yellow';
+    c.fill();
+  }
   nodes.forEach(node => {
-    node.x += node.velocityX;
-    node.y += node.velocityY;
+    if(mode['animation Forces'] && node !== selectedNode){
+      node.x += node.velocityX;
+      node.y += node.velocityY;
+    }
 
     //drag
     factor = node.velocityX / Math.abs(node.velocityX) || 0;
@@ -84,7 +93,7 @@ function resolveForces() {
       distSq = xDist*xDist + yDist*yDist;
       dist = Math.sqrt(distSq);
 
-      force = (sameTree(node, nodeTwo) ? 4 : 1) / distSq;
+      force = (sameTree(node, nodeTwo) ? 4 : 2) / distSq;
       node.velocityX -= force * xDist/dist;
       node.velocityY -= force * yDist/dist;
       nodeTwo.velocityX += force * xDist/dist;
@@ -92,7 +101,7 @@ function resolveForces() {
 
       //be on same line
       yDist = nodeTwo.y-node.y;
-      force = 0.001 / yDist*yDist*yDist || 0;
+      force = 0.0001 / yDist*yDist*yDist || 0;
       node.velocityY += force;
       nodeTwo.velocityY -= force;
 

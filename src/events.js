@@ -4,39 +4,44 @@ canvas.on('mouseup', e => dropSelected(e));
 canvas.on('mouseleave', e => deleteSelected(e))
 
 var selectedNode = null;
+var trace = null;
+var closestNode = null;
 
 function selectNode(event) {
-    selectedNode = findClosest(event.pageX, event.pageY);
+    selectedNode = findClosest(event.offsetX, event.offsetY);
 
     if (!selectedNode) {
-      selectedNode = mode['create'](event.pageX, event.pageY,$('#node').val());
+      selectedNode = mode['create'](event.offsetX, event.offsetY,$('#node').val());
       nodes.push(selectedNode);
     }
 
     trace = new Node(selectedNode.x, selectedNode.y, "trace");
     trace.ghosted = true;
     selectedNode.ghosted = true;
-    if(mode['Binary trees']){
-      makeBinary();
-    }
 }
 
 function moveSelected(event) {
+  closestNode = findClosest(event.offsetX, event.offsetY);
+
   if(selectedNode) {
-    selectedNode.x = event.pageX;
-    selectedNode.y = event.pageY;
+    selectedNode.x = event.offsetX;
+    selectedNode.y = event.offsetY;
   }
 }
 
 function dropSelected(event) {
     if (selectedNode) {
-      closest = findClosest(event.pageX, event.pageY);
+      closest = findClosest(event.offsetX, event.offsetY);
       if (closest) {
         mode['move'](closest);
       }
       trace = null;
       selectedNode.ghosted = false;
       selectedNode = null;
+    }
+
+    if(mode['Binary trees']){
+      makeBinary();
     }
 }
 
@@ -60,8 +65,8 @@ function findClosest(x, y) {
   var closest = null;
 
   nodes.forEach(node => {
-    var sqDistance = (x - node.x) * (x - node.x) + 2 * (y - node.y) * (y - node.y);
-    var comparator = distance || 900;
+    var sqDistance = (x - node.x) * (x - node.x) + 4 * (y - node.y) * (y - node.y);
+    var comparator = distance || 1600;
     if (node !== selectedNode && sqDistance < comparator) {
       distance = sqDistance;
       closest = node;

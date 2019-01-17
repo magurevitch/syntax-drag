@@ -1,13 +1,17 @@
 var mode = {};
 
-function dropSelect(closest) {
+function dropSwitch(closest) {
   selectedNode.x = closest.x;
   selectedNode.y = closest.y;
   closest.x = trace.x;
   closest.y = trace.y;
+
+  var parent = closest.parent;
+  closest.parent = selectedNode.parent;
+  selectedNode.parent = parent;
 }
 
-function dropCatenary(closest) {
+function dropChild(closest) {
   selectedNode.parent = closest;
   selectedNode.x = trace.x;
   selectedNode.y = trace.y;
@@ -20,7 +24,7 @@ function dropDependency(closest) {
   selectedNode.y = trace.y;
 }
 
-function dropTree(closest) {
+function treeHelper(closest) {
   if (!closest.parent || closest.parent === selectedNode) {
     newX = 1/2 * (selectedNode.x + closest.x);
     newY = 1/2 * (selectedNode.y + closest.y) - 20;
@@ -29,6 +33,12 @@ function dropTree(closest) {
     closest.parent = node;
   }
   selectedNode.parent = closest.parent;
+}
+
+function dropTree(closest) {
+  treeHelper(closest);
+  selectedNode.x = trace.x;
+  selectedNode.y = trace.y;
 }
 
 function dropMovement(closest) {
@@ -46,7 +56,7 @@ function dropMovement(closest) {
     trace.links.push(selectedNode);
     nodes.push(trace);
   }
-  dropTree(closest);
+  treeHelper(closest);
 }
 
 function findChildren() {

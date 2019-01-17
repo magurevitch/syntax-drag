@@ -1,7 +1,7 @@
 function makeButton(letter, name, action, type, message) {
   index = name.indexOf(letter);
   newText = index === -1 ? `<u>${letter}<u> ${name}` : `${name.slice(0,index)}<b>${letter}</b>${name.slice(index+1)}`;
-  $('#options tr').last().append(`<td id="${letter}" class="boxed ${type}">${newText}</td>`);
+  $(`#${type}`).append(`<td id="${letter}" class="boxed ${type}">${newText}</td>`);
   $(`#${letter}`).on('mouseenter',function(e) {
     $('#message').text(message);
   });
@@ -12,45 +12,46 @@ function makeButton(letter, name, action, type, message) {
   });
 }
 
-function makeToggle(letter, name, message) {
+function makeToggle(letter, name, message, action) {
   index = name.indexOf(letter);
   newText = index === -1 ? `<u>${letter}<u> ${name}` : `${name.slice(0,index)}<b>${letter}</b>${name.slice(index+1)}`;
-  $('#options tr').last().append(`<td id="${letter}" class="boxed">toggle ${newText}</td>`);
+  $('#options').append(`<td id="${letter}" class="boxed">toggle ${newText}</td>`);
   $(`#${letter}`).on('mouseenter',function(e) {
     $('#message').text(message);
   });
   $(`#${letter}`).on('mousedown', function(e){
     $(this).toggleClass('selected');
     mode[name] = !mode[name];
+
+    if(mode[name] && action){
+      action();
+    }
   });
 }
 
 function makeInput(name){
   $('#inputs').append(`<b>${name}:</b>`);
-  $('#inputs').append(`<input type="text" id="${name}" value="${name}"></input>`);
-  $('#inputs').append(`<br>`);
+  $('#inputs').append(`<input type="text" id="${name}" value="${name}">&nbsp;</input>`);
   $(`#${name}`).on('mouseenter',function(event){
     $('#message').text(`set default text for new ${name}`);
   });
 }
 
-$('#options').append('<tr></tr>');
-makeButton('S','Select', dropSelect,'move','select and move around (and switch) nodes');
-makeButton('N','regular Node',(x,y,text) => new Node(x,y,text),'create','clicking the canvas creates a single node');
-makeToggle('B','Binary trees','force trees to become binary');
-$('#options').append('<tr></tr>');
-makeButton('T','Tree', dropTree, 'move','merges nodes into a tree structure');
-makeButton('L','Leaf and node',(x,y,text) => new LeafNode(x,y,text),'create', 'clicking the canvas makes a node and text underneath it');
-makeToggle('F','animation Forces','animate trees with forces between them');
-$('#options').append('<tr></tr>');
-makeButton('M','Movement', dropMovement, 'move', 'merges nodes into a tree structure with movement');
-makeButton('X','X-bar node',newXBar,'create', "clicking the canvas makes an X' style tree with a head, a bar layer, and a phrase layer");
-$('#options').append('<tr></tr>');
+makeButton('D','Drag', ()=>{},'move','drag around selected nodes');
+makeButton('S','Switch', dropSwitch,'move','drag around nodes and switch them with other nodes');
+makeButton('T','Tree siblings', dropTree, 'move','merges nodes to be sisters in a tree structure, and makes a parent when needed');
+makeButton('M','Movement', dropMovement, 'move', 'merges nodes to be sisters in a tree structure with movement');
 makeButton('A','Arrows', dropDependency, 'move', 'draws arrows to nodes');
-$('#options').append('<tr></tr>');
-makeButton('C','Catenary', dropCatenary, 'move', 'attaches nodes in a catenary');
+makeButton('C','make Child', dropChild, 'move', 'makes the slected node a child of the node you drag it to. This mode is great for catenaries');
 
-$('#S, #N').trigger('mousedown');
+makeButton('N','regular Node',(x,y,text) => new Node(x,y,text),'create','clicking the canvas creates a single node');
+makeButton('L','Leaf and node',(x,y,text) => new LeafNode(x,y,text),'create', 'clicking the canvas makes a node and text underneath it');
+makeButton('X','X-bar node',newXBar,'create', "clicking the canvas makes an X' style tree with a head, a bar layer, and a phrase layer");
+
+makeToggle('B','Binary trees','force trees to become binary', makeBinary);
+makeToggle('F','animation Forces','animate trees with forces between them');
+
+$('#D, #N').trigger('mousedown');
 $('body').on('keypress',function(event){
   $(`#${event.key.toUpperCase()}`).trigger('mousedown');
 })

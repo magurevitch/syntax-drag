@@ -1,8 +1,9 @@
 var canvas = $('canvas');
+canvas.get(0).height = window.innerHeight - 300;
+canvas.get(0).width = window.innerWidth - 20;
 var c = canvas.get(0).getContext('2d');
 
 var nodes = [];
-var trace = null;
 
 function Node(x, y, text, parent) {
   this.x = x;
