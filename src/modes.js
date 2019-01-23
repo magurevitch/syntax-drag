@@ -6,12 +6,16 @@ function dropSwitch(closest) {
   closest.x = trace.x;
   closest.y = trace.y;
 
-  var parent = closest.parent;
-  closest.parent = selectedNode.parent;
+  var parent = closest.isAncestor(selectedNode) ? closest : closest.parent;
+  closest.parent = selectedNode.isAncestor(closest) ? selectedNode : selectedNode.parent;
   selectedNode.parent = parent;
 }
 
 function dropChild(closest) {
+  if (closest.isAncestor(selectedNode)) {
+    closest.parent = null;
+  }
+
   selectedNode.parent = closest;
   selectedNode.x = trace.x;
   selectedNode.y = trace.y;

@@ -5,11 +5,9 @@ function draw() {
   }
 
   if(closestNode) {
-    c.beginPath();
-    c.ellipse(closestNode.x, closestNode.y, 40, 10, 0, 0, 2 * Math.PI);
-    c.fillStyle = 'yellow';
-    c.fill();
+    closestNode.highlight('yellow');
   }
+
   nodes.forEach(node => {
     if(mode['animation Forces'] && node !== selectedNode){
       node.x += node.velocityX;
@@ -49,6 +47,11 @@ function draw() {
     }
     node.draw();
   });
+
+  leaves.forEach(leaf => {
+    leaf.draw();
+  });
+
   if(mode['animation Forces']){
     resolveForces();
   }
@@ -104,15 +107,36 @@ function resolveForces() {
       force = 0.0001 / yDist*yDist*yDist || 0;
       node.velocityY += force;
       nodeTwo.velocityY -= force;
-
-      //don't scramble order
-      if(node.leaf && nodeTwo.leaf && sameTree(node, nodeTwo)) {
-        xDist = nodeTwo.x-node.x;
-        force = 0.1 / xDist || 0;
-        node.velocityX -= force;
-        nodeTwo.velocityX += force;
-      }
     }
+  }
+
+  //keep leaf order intact
+  var remainingLeaves = [];
+  var notInTree = leaves.filter(x => x !== selectedNode && x.parent !== selectedNode).map(x => x.parent);
+  var currentNode = null;
+  while(remainingLeaves.length + notInTree.length) {
+    if(remainingLeaves.length) {
+      secondNode = remainingLeaves.shift();
+      if(sameTree(currentNode,secondNode)) {
+        dist = secondNode.x - currentNode.x;
+        deltaZ = 35 - dist;
+        force = 0.01 * deltaZ;
+        currentNode.velocityX -= force;
+        secondNode.velocityX += force;
+        currentNode = secondNode;
+      } else {
+        notInTree.push(secondNode);
+      }
+    } else {
+      currentNode = notInTree.shift();
+      remainingLeaves = notInTree;
+      notInTree = [];
+    }
+
+  }
+
+  if(mode['leaves in a Row']) {
+    updateLowNode();
   }
 }
 

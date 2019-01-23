@@ -4,6 +4,13 @@ canvas.get(0).width = window.innerWidth - 20;
 var c = canvas.get(0).getContext('2d');
 
 var nodes = [];
+var leaves = [];
+var leafOffset = 40;
+var lowNode = 0;
+
+var selectedNode = null;
+var closestNode = null;
+dragMode();
 
 function Node(x, y, text, parent) {
   this.x = x;
@@ -19,29 +26,49 @@ function Node(x, y, text, parent) {
     c.textAlign = "center";
     c.fillText(this.text,this.x,this.y)
   }
+
+  this.highlight = function(color) {
+    c.beginPath();
+    c.ellipse(this.x, this.y, 40, 10, 0, 0, 2 * Math.PI);
+    c.fillStyle = color;
+    c.fill();
+  }
+
+  this.isAncestor = function(node) {
+    if(this === node) {
+      return true;
+    } else if (!this.parent) {
+      return false;
+    }
+    return this.parent.isAncestor(node);
+  }
 }
 
-function LeafNode(x, y, text, parent) {
-  this.x = x;
-  this.y = y;
-  this.velocityX = 0;
-  this.velocityY = 0;
+function newLeafNode(x, y, text, parent) {
+  node = new Node(x,y,text,parent);
+  leafText = $('#leaf').val();
+  leaf = new Leaf(leafText, node);
+  leaves.push(leaf);
+  return node;
+}
 
+function Leaf(text, parent){
   this.text = text;
-  this.leaf = $('#leaf').val();
   this.parent = parent;
 
   this.draw = function() {
-    c.fillStyle = this.ghosted ? 'gray' : 'black';
-    c.textAlign = "center";
-    c.fillText(this.text,this.x,this.y)
+    var yPosition = mode['leaves in a Row'] ? lowNode : this.parent.y;
+
     c.beginPath();
     c.lineWidth = 1;
     c.setLineDash([3,2]);
-    c.moveTo(this.x,this.y);
-    c.lineTo(this.x,this.y+25);
+    c.moveTo(this.parent.x,this.parent.y);
+    c.lineTo(this.parent.x,yPosition+leafOffset-5);
     c.stroke();
-    c.fillText(this.leaf,this.x,this.y+30)
+
+    c.fillStyle = 'gray';
+    c.textAlign = 'center';
+    c.fillText(this.text,this.parent.x,yPosition+leafOffset);
   }
 }
 
@@ -49,7 +76,7 @@ function newXBar(x,y,text){
   phrase = new Node(x, y, text+"P");
   bar = new Node(x, y+30, text+"'",phrase);
   nodes.push(bar);
-  head = new LeafNode(x, y+60, text+"0",bar);
+  head = newLeafNode(x, y+60, text+"0",bar);
   nodes.push(head);
   return phrase;
 };
@@ -62,4 +89,23 @@ function sameTree(node, nodeTwo) {
     nodeTwo = nodeTwo.parent;
   }
   return node === nodeTwo;
+}
+
+function updateLowNode() {
+  lowNode = Math.max(...nodes.map(node => node.y));
+}
+
+function findClosest(x, y) {
+  var distance = null;
+  var closest = null;
+
+  nodes.forEach(node => {
+    var sqDistance = (x - node.x) * (x - node.x) + 4 * (y - node.y) * (y - node.y);
+    var comparator = distance || 1600;
+    if (node !== selectedNode && sqDistance < comparator) {
+      distance = sqDistance;
+      closest = node;
+    }
+  });
+  return closest;
 }
