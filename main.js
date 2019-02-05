@@ -1,4 +1,4 @@
-var canvas = $('canvas');
+var canvas = $('#canvas');
 canvas.get(0).height = window.innerHeight - 300;
 canvas.get(0).width = window.innerWidth - 20;
 var c = canvas.get(0).getContext('2d');
@@ -8,8 +8,6 @@ var leaves = [];
 var leafOffset = 40;
 var lowNode = 0;
 
-var selectedNode = null;
-var closestNode = null;
 dragMode();
 
 function Node(x, y, text, parent) {
@@ -46,7 +44,7 @@ function Node(x, y, text, parent) {
 
 function newLeafNode(x, y, text, parent) {
   node = new Node(x,y,text,parent);
-  leafText = $('#leaf').val();
+  leafText = $('#leafText').val();
   leaf = new Leaf(leafText, node);
   leaves.push(leaf);
   return node;
@@ -108,4 +106,13 @@ function findClosest(x, y) {
     }
   });
   return closest;
+}
+
+function sortedInsert(sortedList, item, hash) {
+  var index = sortedList.length;
+  while(index > 0 && hash(sortedList[index-1]) > hash(item)) {
+    sortedList[index] = sortedList[index-1];
+    index--;
+  }
+  sortedList[index] = item;
 }

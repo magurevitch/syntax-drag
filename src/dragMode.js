@@ -1,16 +1,17 @@
 var trace = null;
 
-function selectNode(event) {
-    selectedNode = findClosest(event.offsetX, event.offsetY);
+function chooseNode(event) {
+    node = findClosest(event.offsetX, event.offsetY);
 
-    if (!selectedNode) {
-      selectedNode = mode['create'](event.offsetX, event.offsetY,$('#node').val());
-      nodes.push(selectedNode);
+    if (!node) {
+      node = mode['create'](event.offsetX, event.offsetY,$('#nodeText').val());
+      nodes.push(node);
     }
+
+    selectNode(node);
 
     trace = new Node(selectedNode.x, selectedNode.y, "trace");
     trace.ghosted = true;
-    selectedNode.ghosted = true;
 }
 
 function moveSelected(event) {
@@ -31,9 +32,7 @@ function dropSelected(event) {
 
       leaves.sort(function(a,b){return a.parent.x - b.parent.x});
 
-      trace = null;
-      selectedNode.ghosted = false;
-      selectedNode = null;
+      selectNode(null);
     }
 
     if(mode['Binary trees']){
@@ -58,8 +57,7 @@ function deleteSelected(event) {
 
   leaves = leaves.filter(leaf => leaf.parent !== selectedNode);
 
-  selectedNode = null;
-  trace = null;
+  selectNode(null);
 }
 
 function makeButton(letter, name, action, type, message) {
@@ -73,6 +71,14 @@ function makeButton(letter, name, action, type, message) {
     $(`.${type}`).removeClass('selected');
     $(this).addClass('selected');
     mode[type] = action;
+    $('#parentText').parent().hide();
+    if(mode.move === dropTree || mode.move === dropMovement) {
+      $('#parentText').parent().show();
+    }
+    $('#leafText').parent().hide();
+    if(mode.create == newLeafNode || mode.create == newXBar) {
+      $('#leafText').parent().show();
+    }
   });
 }
 
@@ -94,9 +100,8 @@ function makeToggle(letter, name, message, action) {
 }
 
 function makeInput(name){
-  $('#inputs').append(`<b>${name}:</b>`);
-  $('#inputs').append(`<input type="text" id="${name}" value="${name}">&nbsp;</input>`);
-  $(`#${name}`).on('mouseenter',function(event){
+  $('#inputs').append(`<span><b>${name}:</b><input type="text" id="${name}Text" value="${name}">&nbsp;</input></span>`);
+  $(`#${name}Text`).on('mouseenter',function(event){
     $('#message').text(`set default text for new ${name}`);
   });
 }
@@ -110,7 +115,7 @@ function dragMode() {
   makeButton('C','make Child', dropChild, 'move', 'makes the slected node a child of the node you drag it to. This mode is great for catenaries');
 
   makeButton('N','regular Node',(x,y,text) => new Node(x,y,text),'create','clicking the canvas creates a single node');
-  makeButton('L','Leaf and node',(x,y,text) => newLeafNode(x,y,text),'create', 'clicking the canvas makes a node and text underneath it');
+  makeButton('L','Leaf and node',newLeafNode,'create', 'clicking the canvas makes a node and text underneath it');
   makeButton('X','X-bar node',newXBar,'create', "clicking the canvas makes an X' style tree with a head, a bar layer, and a phrase layer");
 
   makeToggle('B','Binary trees','force trees to become binary', makeBinary);
@@ -123,7 +128,7 @@ function dragMode() {
   makeInput('parent');
   makeInput('leaf');
 
-  canvas.on('mousedown', e => selectNode(e));
+  canvas.on('mousedown', e => chooseNode(e));
   canvas.on('mousemove', e => moveSelected(e));
   canvas.on('mouseup', e => dropSelected(e));
   canvas.on('mouseleave', e => deleteSelected(e));
@@ -132,7 +137,11 @@ function dragMode() {
   });
   $('body').on('keydown',function(event){
     event.preventDefault();
-    $(`#${event.key.toUpperCase()}`).trigger('mousedown');
+    if (event.key.includes('Arrow')) {
+      arrowSelect(event.key);
+    } else {
+      $(`#${event.key.toUpperCase()}`).trigger('mousedown');
+    }
   });
   $('#inputs').on('keydown',function(event){
     event.stopPropagation();

@@ -8,8 +8,20 @@ function draw() {
     closestNode.highlight('yellow');
   }
 
+  if(selectedNode) {
+    selectedNode.highlight('red');
+  }
+
   nodes.forEach(node => {
     if(mode['animation Forces'] && node !== selectedNode){
+			//speed limit 1
+			sqSpeed = node.velocityX*node.velocityX + node.velocityY*node.velocityY;
+			if (sqSpeed > 1) {
+				speed = Math.sqrt(sqSpeed);
+				node.velocityX /= sqSpeed;
+				node.velocityY /= sqSpeed;
+			}
+
       node.x += node.velocityX;
       node.y += node.velocityY;
     }
@@ -94,13 +106,15 @@ function resolveForces() {
       xDist = nodeTwo.x-node.x;
       yDist = nodeTwo.y-node.y;
       distSq = xDist*xDist + yDist*yDist;
-      dist = Math.sqrt(distSq);
+			if(distSq){
+      	dist = Math.sqrt(distSq);
 
-      force = (sameTree(node, nodeTwo) ? 4 : 2) / distSq;
-      node.velocityX -= force * xDist/dist;
-      node.velocityY -= force * yDist/dist;
-      nodeTwo.velocityX += force * xDist/dist;
-      nodeTwo.velocityY += force * yDist/dist;
+      	force = (sameTree(node, nodeTwo) ? 4 : 2) / distSq;
+      	node.velocityX -= force * xDist/dist;
+      	node.velocityY -= force * yDist/dist;
+      	nodeTwo.velocityX += force * xDist/dist;
+      	nodeTwo.velocityY += force * yDist/dist;
+			}
 
       //be on same line
       yDist = nodeTwo.y-node.y;

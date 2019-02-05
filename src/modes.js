@@ -32,7 +32,7 @@ function treeHelper(closest) {
   if (!closest.parent || closest.parent === selectedNode) {
     newX = 1/2 * (selectedNode.x + closest.x);
     newY = 1/2 * (selectedNode.y + closest.y) - 20;
-    node = new Node(newX, newY, $('#parent').val());
+    node = new Node(newX, newY, $('#parentText').val());
     nodes.push(node);
     closest.parent = node;
   }
@@ -69,24 +69,23 @@ function findChildren() {
     if(node.parent) {
       index=nodes.indexOf(node.parent);
       children[index] = children[index] || [];
-      children[index].push(node);
+      sortedInsert(children[index],node,item=>item.x);
     }
   });
   return children;
 }
 
 function makeBinary() {
-  children = findChildren();
-
+  var children = findChildren();
   for(index in children) {
     node = nodes[index];
     childNodes = children[index];
     while(childNodes.length > 2) {
       var nodeToMove = childNodes.pop();
-      var newNode = new Node(node.x+10,node.y+10,node.text,node);
-      nodes.push(newNode);
+      node = new Node(node.x+10,node.y+10,node.text,node);
+      nodes.push(node);
       childNodes.forEach(child => {
-        child.parent = newNode;
+        child.parent = node;
       });
     }
   }

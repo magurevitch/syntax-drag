@@ -12,3 +12,9 @@ canvas {
 .selected {
   background-color: #FFEE99;
 }
+
+#arrow-select td {
+  border: 1px solid black;
+  width: 50;
+  height: 30;
+}

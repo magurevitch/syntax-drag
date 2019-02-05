@@ -12,8 +12,14 @@
           <tr><th>Default labels</th><td id='inputs'></td></tr>
         </table>
         <span id='message' class='boxed'>Welcome to the Drag and Drop Tree builder</span>
+        <table id='arrow-select'>
+          <tr><td colspan='3' id='parent'><span>parent</span></td></tr>
+          <tr><td id='left'><span>left siblings</span></td><td id='selectedNode'><span>selected node</span></td><td id='right'><span>right siblings</span></td></tr>
+          <tr><td colspan='3' id='children'><span>children</span></td></tr>
+        </table>
 
         <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+        <script src='src/selectedNode.js'></script>
         <script src='src/modes.js'></script>
         <script src='src/dragMode.js'></script>
         <script src='main.js'></script>
