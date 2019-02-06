@@ -8,8 +8,6 @@ var leaves = [];
 var leafOffset = 40;
 var lowNode = 0;
 
-dragMode();
-
 function Node(x, y, text, parent) {
   this.x = x;
   this.y = y;
@@ -18,6 +16,15 @@ function Node(x, y, text, parent) {
 
   this.text = text;
   this.parent = parent;
+
+  this.interaction = function() {
+    return this;
+  }
+
+  this.setLocation = function(x,y) {
+    this.x = x;
+    this.y = y;
+  }
 
   this.draw = function() {
     c.fillStyle = this.ghosted ? 'gray' : 'black';
@@ -54,19 +61,51 @@ function Leaf(text, parent){
   this.text = text;
   this.parent = parent;
 
+  this.interaction = function() {
+    return this.parent;
+  }
+
+  this.setLocation = function(x,y) {
+    this.parent.x = x;
+    this.parent.y = y-leafOffset;
+  }
+
+  this.y = function () {
+    parentY = mode['leaves in a Row'] && this !== selectedNode ? lowNode : this.parent.y;
+    return parentY + leafOffset;
+  }
+
   this.draw = function() {
     var yPosition = mode['leaves in a Row'] ? lowNode : this.parent.y;
 
     c.beginPath();
     c.lineWidth = 1;
-    c.setLineDash([3,2]);
     c.moveTo(this.parent.x,this.parent.y);
-    c.lineTo(this.parent.x,yPosition+leafOffset-5);
+    if (this.text.indexOf(' ') > -1) {
+      c.setLineDash([]);
+      c.lineTo(this.parent.x-20,this.y()-10);
+      c.lineTo(this.parent.x+20,this.y()-10);
+      c.lineTo(this.parent.x,this.parent.y);
+    } else {
+      c.setLineDash([3,2]);
+      c.lineTo(this.parent.x,this.y()-5);
+    }
     c.stroke();
 
     c.fillStyle = 'gray';
     c.textAlign = 'center';
-    c.fillText(this.text,this.parent.x,yPosition+leafOffset);
+    c.fillText(this.text,this.parent.x,this.y());
+  }
+
+  this.highlight = function(color) {
+    c.beginPath();
+    c.ellipse(this.parent.x, this.y(), 40, 10, 0, 0, 2 * Math.PI);
+    c.fillStyle = color;
+    c.fill();
+
+    c.globalAlpha = 0.3;
+    this.parent.highlight(color);
+    c.globalAlpha = 1;
   }
 }
 
@@ -91,21 +130,6 @@ function sameTree(node, nodeTwo) {
 
 function updateLowNode() {
   lowNode = Math.max(...nodes.map(node => node.y));
-}
-
-function findClosest(x, y) {
-  var distance = null;
-  var closest = null;
-
-  nodes.forEach(node => {
-    var sqDistance = (x - node.x) * (x - node.x) + 4 * (y - node.y) * (y - node.y);
-    var comparator = distance || 1600;
-    if (node !== selectedNode && sqDistance < comparator) {
-      distance = sqDistance;
-      closest = node;
-    }
-  });
-  return closest;
 }
 
 function sortedInsert(sortedList, item, hash) {

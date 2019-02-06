@@ -5,7 +5,6 @@ var leftSiblings = [];
 var rightSiblings = [];
 
 function selectNode(node) {
-  trace = null;
   if(selectedNode) {
     selectedNode.ghosted = false;
   }
@@ -58,5 +57,6 @@ function arrowSelect(key) {
     "ArrowLeft": leftSiblings[leftSiblings.length - 1],
     "ArrowDown": selectedChildren[0]
   }
+  
   selectNode(choice[key]);
 }
