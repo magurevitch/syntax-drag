@@ -4,20 +4,15 @@ function findClosest(x, y) {
   var distance = null;
   var closest = null;
 
-  function rememberIfCloser(node, nodeX, nodeY) {
+  nodes.concat(leaves).forEach(node => {
+    nodeX = node.getLocation().x;
+    nodeY = node.getLocation().y;
     var sqDistance = (x - nodeX) * (x - nodeX) + 4 * (y - nodeY) * (y - nodeY);
     var comparator = distance || 1600;
     if (node !== selectedNode && sqDistance < comparator) {
       distance = sqDistance;
       closest = node;
     }
-  }
-
-  nodes.forEach(node => {
-    rememberIfCloser(node, node.x, node.y);
-  });
-  leaves.forEach(leaf => {
-    rememberIfCloser(leaf, leaf.parent.x, leaf.y());
   });
   return closest;
 }
@@ -27,7 +22,7 @@ function chooseNode(event) {
   if(mode['Persist selection']) {
     if(selectedNode && node) {
       if(mode['move']) {
-        mode['move'](node.interaction());
+        mode['move'](node);
         return;
       }
     }
@@ -55,7 +50,7 @@ function dropSelected(event) {
     if (selectedNode && !mode['Persist selection']) {
       closest = findClosest(event.offsetX, event.offsetY);
       if (closest && mode['move']) {
-        mode['move'](closest.interaction());
+        mode['move'](closest);
       }
 
       leaves.sort(function(a,b){return a.parent.x - b.parent.x});
@@ -74,17 +69,18 @@ function dropSelected(event) {
 }
 
 function deleteSelected(event) {
+  selectedLeaf = leaves.filter(leaf => leaf.parent === selectedNode)[0];
+  leaves = leaves.filter(leaf => leaf !== selectedNode && leaf.parent !== selectedNode);
+
   nodes = nodes.filter(e => e !== selectedNode);
-  nodes.forEach(node => {
+  nodes.concat(leaves).forEach(node => {
     if(node.parent === selectedNode) {
       node.parent = null;
     }
     if(node.links) {
-      node.links = node.links.filter(e => e !== selectedNode);
+      node.links = node.links.filter(e => e !== selectedNode && e !== selectedLeaf);
     }
   });
-
-  leaves = leaves.filter(leaf => leaf.parent !== selectedNode);
 
   trace = null;
   selectNode(null);
@@ -140,7 +136,7 @@ makeButton('D','Drag', false, 'move','drag around selected nodes');
 makeButton('S','Switch', dropSwitch,'move','drag around nodes and switch them with other nodes');
 makeButton('T','Tree siblings', dropTree, 'move','merges nodes to be sisters in a tree structure, and makes a parent when needed');
 makeButton('M','Movement', dropMovement, 'move', 'merges nodes to be sisters in a tree structure with movement');
-makeButton('A','Arrows', dropDependency, 'move', 'draws arrows to nodes');
+makeButton('A','Arrows', dropArrows, 'move', 'draws arrows to nodes');
 makeButton('C','make Child', dropChild, 'move', 'makes the slected node a child of the node you drag it to. This mode is great for catenaries');
 
 makeButton('N','regular Node',(x,y,text) => new Node(x,y,text),'create','clicking the canvas creates a single node');

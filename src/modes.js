@@ -1,31 +1,31 @@
 var mode = {};
 
 function dropSwitch(closest) {
-  newcloseX = trace ? trace.x : selectedNode.interaction().x;
-  newcloseY = trace ? trace.y : selectedNode.interaction().y;
+  newcloseX = trace ? trace.x : selectedNode.getLocation().x;
+  newcloseY = trace ? trace.y : selectedNode.getLocation().y;
 
-  selectedNode.setLocation(closest.x, closest.y);
+  selectedNode.setLocation(closest.getLocation().x, closest.getLocation().y);
   closest.setLocation(newcloseX,newcloseY);
 
-  var parent = closest.isAncestor(selectedNode.interaction()) ? closest : closest.parent;
-  closest.parent = selectedNode.interaction().isAncestor(closest) ? selectedNode.interaction() : selectedNode.interaction().parent;
+  var parent = closest.interaction().isAncestor(selectedNode.interaction()) ? closest.interaction() : closest.interaction().parent;
+  closest.interaction().parent = selectedNode.interaction().isAncestor(closest) ? selectedNode.interaction() : selectedNode.interaction().parent;
   selectedNode.interaction().parent = parent;
 }
 
 function dropChild(closest) {
-  if (closest.isAncestor(selectedNode.interaction())) {
-    closest.parent = null;
+  if (closest.interaction().isAncestor(selectedNode.interaction())) {
+    closest.interaction().parent = null;
   }
 
-  selectedNode.interaction().parent = closest;
+  selectedNode.interaction().parent = closest.interaction();
   if(trace) {
     selectedNode.setLocation(trace.x, trace.y);
   }
 }
 
-function dropDependency(closest) {
-  selectedNode.interaction().links = selectedNode.interaction().links || [];
-  selectedNode.interaction().links.push(closest);
+function dropArrows(closest) {
+  selectedNode.links = selectedNode.links || [];
+  selectedNode.links.push(closest);
   selectedNode.setLocation(trace.x, trace.y);
 }
 
@@ -41,14 +41,14 @@ function treeHelper(closest) {
 }
 
 function dropTree(closest) {
-  treeHelper(closest);
+  treeHelper(closest.interaction());
   if(trace) {
     selectedNode.setLocation(trace.x, trace.y);
   }
 }
 
 function dropMovement(closest) {
-  if (selectedNode.interaction().parent && selectedNode.interaction().parent !== closest.parent) {
+  if (selectedNode.interaction().parent && selectedNode.interaction().parent !== closest.interaction().parent) {
     traceNode = trace || new Node(selectedNode.interaction().x+10, selectedNode.interaction().y+10, "trace");
 
     nodes.forEach(node => {
@@ -61,10 +61,10 @@ function dropMovement(closest) {
     traceNode.ghosted = false;
     traceNode.parent = selectedNode.interaction().parent;
     traceNode.links = traceNode.links || [];
-    traceNode.links.push(selectedNode.interaction());
+    traceNode.links.push(selectedNode);
     nodes.push(traceNode);
   }
-  treeHelper(closest);
+  treeHelper(closest.interaction());
 }
 
 function findChildren() {

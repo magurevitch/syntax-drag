@@ -25,6 +25,9 @@ function Node(x, y, text, parent) {
     this.x = x;
     this.y = y;
   }
+  this.getLocation = function() {
+    return {'x': this.x, 'y': this.y};
+  }
 
   this.draw = function() {
     c.fillStyle = this.ghosted ? 'gray' : 'black';
@@ -73,6 +76,10 @@ function Leaf(text, parent){
   this.y = function () {
     parentY = mode['leaves in a Row'] && this !== selectedNode ? lowNode : this.parent.y;
     return parentY + leafOffset;
+  }
+
+  this.getLocation = function() {
+    return {'x': this.parent.x, 'y': this.y()};
   }
 
   this.draw = function() {

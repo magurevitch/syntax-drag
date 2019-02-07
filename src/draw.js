@@ -41,7 +41,10 @@ function draw() {
       c.lineTo(node.parent.x, node.parent.y);
       c.stroke();
     }
+  });
 
+  nodes.concat(leaves).forEach(node => {
+    node.draw();
     if(node.links) {
       node.links.forEach(link => {
         factor = node.parent || link.parent ? 1 : -1;
@@ -49,19 +52,14 @@ function draw() {
         c.beginPath();
         c.setLineDash([]);
         c.lineWidth = 1;
-        c.moveTo(node.x, node.y);
-        c.bezierCurveTo(node.x, node.y+factor*30, link.x, link.y+factor*30, link.x, link.y+factor*5);
-        c.lineTo(link.x-5,link.y+factor*10);
-        c.lineTo(link.x+5,link.y+factor*10);
-        c.lineTo(link.x,link.y+factor*5);
+        c.moveTo(node.getLocation().x, node.getLocation().y);
+        c.bezierCurveTo(node.getLocation().x, node.getLocation().y+factor*30, link.getLocation().x, link.getLocation().y+factor*30, link.getLocation().x, link.getLocation().y+factor*5);
+        c.lineTo(link.getLocation().x-5,link.getLocation().y+factor*10);
+        c.lineTo(link.getLocation().x+5,link.getLocation().y+factor*10);
+        c.lineTo(link.getLocation().x,link.getLocation().y+factor*5);
         c.stroke();
       });
     }
-    node.draw();
-  });
-
-  leaves.forEach(leaf => {
-    leaf.draw();
   });
 
   if(mode['animation Forces']){
