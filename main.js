@@ -2,6 +2,8 @@ var canvas = $('#canvas');
 canvas.get(0).height = window.innerHeight - 300;
 canvas.get(0).width = window.innerWidth - 20;
 var c = canvas.get(0).getContext('2d');
+c.textAlign = 'center';
+c.textBaseline = 'middle';
 
 var nodes = [];
 var leaves = [];
@@ -31,7 +33,7 @@ function Node(x, y, text, parent) {
 
   this.draw = function() {
     c.fillStyle = this.ghosted ? 'gray' : 'black';
-    c.textAlign = "center";
+    c.font = '15px sans-serif';
     c.fillText(this.text,this.x,this.y)
   }
 
@@ -87,20 +89,21 @@ function Leaf(text, parent){
 
     c.beginPath();
     c.lineWidth = 1;
-    c.moveTo(this.parent.x,this.parent.y);
     if (this.text.indexOf(' ') > -1) {
       c.setLineDash([]);
+      c.moveTo(this.parent.x,this.parent.y+5);
       c.lineTo(this.parent.x-20,this.y()-10);
       c.lineTo(this.parent.x+20,this.y()-10);
-      c.lineTo(this.parent.x,this.parent.y);
+      c.lineTo(this.parent.x,this.parent.y+5);
     } else {
+      c.moveTo(this.parent.x,this.parent.y);
       c.setLineDash([3,2]);
       c.lineTo(this.parent.x,this.y()-5);
     }
     c.stroke();
 
     c.fillStyle = 'gray';
-    c.textAlign = 'center';
+    c.font = '12px sans-serif';
     c.fillText(this.text,this.parent.x,this.y());
   }
 

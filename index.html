@@ -6,23 +6,29 @@
     <body>
         <canvas id='canvas'></canvas>
         <table>
-          <tr><th>Movement options</th><td id='move'></td></tr>
-          <tr><th>Creation options</th><td id='create'></td></tr>
-          <tr><th>Other options</th><td id='options'></td></tr>
-          <tr><th>Default labels</th><td id='inputs'></td></tr>
+          <tr>
+            <th>Movement options</th><td id='move'></td>
+            <td colspan='3' id='parent'><span>parent</span></td>
+          </tr>
+          <tr>
+            <th>Creation options</th><td id='create'></td>
+            <td id='left'><span>left siblings</span></td><td id='selectedNode'><span>selected node</span></td><td id='right'><span>right siblings</span></td>
+          </tr>
+          <tr>
+            <th>Other options</th><td id='options'></td>
+            <td colspan='3' id='children'><span>children</span></td>
+          </tr>
+          <tr><th>Default labels</th><td id='inputs'></td><td colspan='3'><button onclick='tutorial()'>View tutorial</button><button onclick='reset()'>Reset</button></td></tr>
         </table>
         <span id='message' class='boxed'>Welcome to the Drag and Drop Tree builder</span>
-        <table id='arrow-select'>
-          <tr><td colspan='3' id='parent'><span>parent</span></td></tr>
-          <tr><td id='left'><span>left siblings</span></td><td id='selectedNode'><span>selected node</span></td><td id='right'><span>right siblings</span></td></tr>
-          <tr><td colspan='3' id='children'><span>children</span></td></tr>
-        </table>
+        <table id='nodes'></table>
 
         <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
         <script src='src/selectedNode.js'></script>
         <script src='src/modes.js'></script>
         <script src='main.js'></script>
         <script src='src/actions.js'></script>
+        <script src='src/tutorial.js'></script>
         <script src='src/draw.js'></script>
     </body>
 </html>

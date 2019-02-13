@@ -65,6 +65,22 @@ function draw() {
   if(mode['animation Forces']){
     resolveForces();
   }
+
+  if(animationFrames.length > 0) {
+    frame = animationFrames.shift();
+    if(frame.event) {
+      frame.element.trigger(frame.event);
+    } else if (frame.toggle) {
+      frame.element.toggleClass(frame.toggle);
+    }
+    if(frame.draw) {
+      frame.draw();
+    }
+    if(animationFrames.length === 1){
+      console.log(nodes)
+    }
+  }
+
   window.requestAnimationFrame(draw);
 }
 
@@ -107,7 +123,7 @@ function resolveForces() {
 			if(distSq){
       	dist = Math.sqrt(distSq);
 
-      	force = (sameTree(node, nodeTwo) ? 4 : 2) / distSq;
+      	force = (sameTree(node, nodeTwo) ? 10 : 5) / distSq;
       	node.velocityX -= force * xDist/dist;
       	node.velocityY -= force * yDist/dist;
       	nodeTwo.velocityX += force * xDist/dist;
@@ -132,7 +148,7 @@ function resolveForces() {
       if(sameTree(currentNode,secondNode)) {
         dist = secondNode.x - currentNode.x;
         deltaZ = 35 - dist;
-        force = 0.01 * deltaZ;
+        force = 0.02 * deltaZ;
         currentNode.velocityX -= force;
         secondNode.velocityX += force;
         currentNode = secondNode;

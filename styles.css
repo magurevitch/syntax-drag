@@ -13,8 +13,12 @@ canvas {
   background-color: #FFEE99;
 }
 
-#arrow-select td {
+.arrow-select {
   border: 1px solid black;
   width: 50;
   height: 30;
+}
+
+.disabled {
+  pointer-events: none;
 }

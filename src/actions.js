@@ -19,21 +19,24 @@ function findClosest(x, y) {
 
 function chooseNode(event) {
   node = findClosest(event.offsetX, event.offsetY);
-  if(mode['Persist selection']) {
+  if(selectedNode) {
     if(selectedNode && node) {
       if(mode['move']) {
         mode['move'](node);
         return;
       }
     }
+    trace = null;
   } else {
     if (!node) {
       node = mode['create'](event.offsetX, event.offsetY,$('#nodeText').val());
       nodes.push(node);
     }
 
-    trace = new Node(node.interaction().x, node.interaction().y, "trace");
-    trace.ghosted = true;
+    if(!mode['Persist selection']) {
+      trace = new Node(node.interaction().x, node.interaction().y, "trace");
+      trace.ghosted = true;
+    }
   }
   selectNode(node);
 }
@@ -84,6 +87,16 @@ function deleteSelected(event) {
 
   trace = null;
   selectNode(null);
+}
+
+function reset() {
+  $('#options').find('.selected').trigger('mousedown');
+  nodes = [];
+  leaves = [];
+  trace = null;
+  closestNode=null;
+  selectNode(null);
+  $('#D,#N').trigger('mousedown');
 }
 
 function makeButton(letter, name, action, type, message) {
@@ -146,7 +159,7 @@ makeButton('X','X-bar node',newXBar,'create', "clicking the canvas makes an X' s
 makeToggle('B','Binary trees','force trees to become binary', makeBinary);
 makeToggle('F','animation Forces','animate trees with forces between them');
 makeToggle('R','leaves in a Row','drop all the leaves to be in a row below the lowest node', updateLowNode);
-makeToggle('P','Persist selection','replaces generating new nodes with Persistant selections', ()=>{$('#create').parent().toggle()});
+makeToggle('P','Persist selection','replaces generating new nodes with Persistant selections');
 
 $('#D, #N').trigger('mousedown');
 
@@ -177,11 +190,12 @@ $('#inputs').on('keydown',function(event){
 
 function updateText(node, key) {
   if (key === 'Backspace') {
-    node.text = text.substring(0, text.length-1);
+    node.text = node.text.substring(0, node.text.length-1);
   } else if (key === 'Enter') {
     node.text = '';
   } else if (key.length === 1) {
     node.text += key;
   }
   fillSection($('#selectedNode'), node);
+  $('#nodes td.selected').html($('#nodes td.selected').attr('id') + '<br>' + node.text);
 }

@@ -4,6 +4,8 @@ var selectedChildren = [];
 var leftSiblings = [];
 var rightSiblings = [];
 
+$('#parent,#left,#selectedNode,#right,#children').addClass('arrow-select');
+
 function selectNode(node) {
   if(selectedNode) {
     selectedNode.ghosted = false;
@@ -16,6 +18,7 @@ function selectNode(node) {
   if (node) {
     fillFamily();
   }
+  fillNodes();
 }
 
 function emptyFamily() {
@@ -57,6 +60,24 @@ function arrowSelect(key) {
     "ArrowLeft": leftSiblings[leftSiblings.length - 1],
     "ArrowDown": selectedChildren[0]
   }
-  
+
   selectNode(choice[key]);
+}
+
+function fillNodes() {
+  $('#nodes td').remove();
+
+  numberNodes = Math.min(10, nodes.length);
+
+  for(var i=0; i<numberNodes; i++) {
+    $('#nodes').append(`<td id="${i}" class='boxed'>${i}<br>${nodes[i].text}</td>`);
+  }
+
+  selectedIndex = nodes.indexOf(selectedNode);
+  $(`#${selectedIndex}`).addClass('selected');
+
+  $('#nodes td').on('mousedown', function(event) {
+    node = nodes[$(this).attr('id')];
+    canvas.trigger({'type':'mousedown', 'offsetX':node.x, 'offsetY': node.y});
+  });
 }
