@@ -4,7 +4,7 @@ var selectedChildren = [];
 var leftSiblings = [];
 var rightSiblings = [];
 
-$('#parent,#left,#selectedNode,#right,#children').addClass('arrow-select');
+$('#parent,#left,#selectedNode,#right,#children').parent().addClass('arrow-select');
 
 function selectNode(node) {
   if(selectedNode) {
@@ -36,11 +36,6 @@ function fillFamily() {
     leftSiblings = siblings.slice(0,siblingsIndex);
     rightSiblings = siblings.slice(siblingsIndex+1);
   }
-  fillSection($('#selectedNode'), selectedNode);
-  fillSection($('#parent'), selectedNode.parent);
-  fillList($('#children'),selectedChildren);
-  fillList($('#left'), leftSiblings);
-  fillList($('#right'), rightSiblings);
 }
 
 function fillSection(section, object) {
@@ -65,6 +60,12 @@ function arrowSelect(key) {
 }
 
 function fillNodes() {
+  fillSection($('#selectedNode'), selectedNode);
+  fillSection($('#parent'), selectedNode ? selectedNode.parent : null);
+  fillList($('#children'),selectedChildren);
+  fillList($('#left'), leftSiblings);
+  fillList($('#right'), rightSiblings);
+
   $('#nodes td').remove();
 
   numberNodes = Math.min(10, nodes.length);

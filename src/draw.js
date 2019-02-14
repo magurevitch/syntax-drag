@@ -38,7 +38,7 @@ function draw() {
       c.setLineDash([]);
       c.lineWidth = 3;
       c.moveTo(node.x, node.y-5);
-      c.lineTo(node.parent.x, node.parent.y);
+      c.lineTo(node.parent.x, node.parent.y+5);
       c.stroke();
     }
   });
@@ -75,9 +75,6 @@ function draw() {
     }
     if(frame.draw) {
       frame.draw();
-    }
-    if(animationFrames.length === 1){
-      console.log(nodes)
     }
   }
 

@@ -89,14 +89,13 @@ function Leaf(text, parent){
 
     c.beginPath();
     c.lineWidth = 1;
+    c.moveTo(this.parent.x,this.parent.y+5);
     if (this.text.indexOf(' ') > -1) {
       c.setLineDash([]);
-      c.moveTo(this.parent.x,this.parent.y+5);
       c.lineTo(this.parent.x-20,this.y()-10);
       c.lineTo(this.parent.x+20,this.y()-10);
       c.lineTo(this.parent.x,this.parent.y+5);
     } else {
-      c.moveTo(this.parent.x,this.parent.y);
       c.setLineDash([3,2]);
       c.lineTo(this.parent.x,this.y()-5);
     }

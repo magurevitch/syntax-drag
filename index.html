@@ -8,15 +8,15 @@
         <table>
           <tr>
             <th>Movement options</th><td id='move'></td>
-            <td colspan='3' id='parent'><span>parent</span></td>
+            <td colspan='3'><span class='boxed'>&uarr;</span><span id='parent'>parent</span></td>
           </tr>
           <tr>
             <th>Creation options</th><td id='create'></td>
-            <td id='left'><span>left siblings</span></td><td id='selectedNode'><span>selected node</span></td><td id='right'><span>right siblings</span></td>
+            <td><span class='boxed'>&larr;</span><span id='left'>left siblings</span></td><td><span id='selectedNode'>selected node</span></td><td><span id='right'>right siblings</span><span class='boxed'>&rarr;</span></td>
           </tr>
           <tr>
             <th>Other options</th><td id='options'></td>
-            <td colspan='3' id='children'><span>children</span></td>
+            <td colspan='3'><span class='boxed'>&darr;</span><span id='children'>children</span></td>
           </tr>
           <tr><th>Default labels</th><td id='inputs'></td><td colspan='3'><button onclick='tutorial()'>View tutorial</button><button onclick='reset()'>Reset</button></td></tr>
         </table>
