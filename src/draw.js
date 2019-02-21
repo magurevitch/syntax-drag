@@ -13,7 +13,7 @@ function draw() {
   }
 
   nodes.forEach(node => {
-    if(mode['animation Forces'] && node !== selectedNode){
+    if(mode['animation Forces'] && (!selectedNode || node !== selectedNode.interaction())){
 			//speed limit 1
 			sqSpeed = node.velocityX*node.velocityX + node.velocityY*node.velocityY;
 			if (sqSpeed > 1) {
@@ -68,13 +68,25 @@ function draw() {
 
   if(animationFrames.length > 0) {
     frame = animationFrames.shift();
-    if(frame.event) {
-      frame.element.trigger(frame.event);
-    } else if (frame.toggle) {
-      frame.element.toggleClass(frame.toggle);
-    }
-    if(frame.draw) {
-      frame.draw();
+    !frame.event || frame.element.trigger(frame.event);
+    !frame.toggle || frame.element.toggleClass(frame.toggle);
+    !frame.draw || frame.draw();
+    !frame.message || $('#message').text(frame.message);
+    if(frame.follow && selectedNode) {
+      node = frame.leaf ? leaves[frame.follow] : nodes[frame.follow];
+      xDist = selectedNode.x-node.getLocation().x;
+      yDist = selectedNode.y-node.getLocation().y;
+      dist = Math.sqrt(xDist*xDist + yDist*yDist);
+      if(node === closestNode && dist < 20) {
+        tempFrames = animationFrames;
+        animationFrames = [];
+        unclickMouse(selectedNode.x,selectedNode.y);
+        animationFrames = animationFrames.concat(tempFrames);
+      } else if (dist) {
+        selectedNode.x -= xDist/dist;
+        selectedNode.y -= yDist/dist;
+        animationFrames.unshift({'element':canvas,'draw':drawCursor(selectedNode.x,selectedNode.y),'follow':frame.follow,'leaf':frame.leaf,'event':{'type':'mousemove','offsetX': selectedNode.x, 'offsetY':selectedNode.y}})
+      }
     }
   }
 
@@ -120,7 +132,7 @@ function resolveForces() {
 			if(distSq){
       	dist = Math.sqrt(distSq);
 
-      	force = (sameTree(node, nodeTwo) ? 10 : 5) / distSq;
+      	force = (sameTree(node, nodeTwo) ? 5 : 1) * (node.text.length + nodeTwo.text.length) / distSq;
       	node.velocityX -= force * xDist/dist;
       	node.velocityY -= force * yDist/dist;
       	nodeTwo.velocityX += force * xDist/dist;

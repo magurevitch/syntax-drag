@@ -112,7 +112,7 @@ function Leaf(text, parent){
     c.fillStyle = color;
     c.fill();
 
-    c.globalAlpha = 0.3;
+    c.globalAlpha = 0.2;
     this.parent.highlight(color);
     c.globalAlpha = 1;
   }

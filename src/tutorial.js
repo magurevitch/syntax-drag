@@ -66,7 +66,8 @@ function keyIcon(key,i) {
   }
 }
 
-function moveMouse(xStart, yStart, xEnd, yEnd, numberFrames) {
+function moveMouse(xStart, yStart, xEnd, yEnd) {
+  numberFrames = Math.sqrt((xStart-xEnd)*(xStart-xEnd) + (yStart-yEnd)*(yStart-yEnd));
   for(var i=0; i<numberFrames+1; i++){
       var offsetX = (xStart*(numberFrames-i) + xEnd*i)/numberFrames;
       var offsetY = (yStart*(numberFrames-i) + yEnd*i)/numberFrames;
@@ -76,6 +77,11 @@ function moveMouse(xStart, yStart, xEnd, yEnd, numberFrames) {
 
 function mouseLeave() {
   animationFrames.push({'element':canvas,'event':{'type':'mouseleave'}});
+}
+
+function follow(x,y,node,leaf) {
+  clickMouse(x,y);
+  animationFrames.push({'element':canvas,'draw':drawCursor(x,y),'follow':node,'leaf':leaf,'event':{'type':'mousemove','offsetX': x, 'offsetY':y}});
 }
 
 function drawCursor(x,y) {
@@ -134,25 +140,30 @@ function tutorial() {
   toggleEnableInteraction();
   reset();
 
+  animationFrames.push({'message':'welcome to the syntax drag and drop tutorial. Clicking on empty space creates a node'});
   clickMouse(100,100);
-  moveMouse(100,100,200,120,50);
+  moveMouse(100,100,200,120);
   unclickMouse(200,120);
 
+  animationFrames.push({'message':'Clicking on empty space creates a node, and in normal mode, you can drag selected nodes'});
   clickMouse(120,120);
-  moveMouse(120,120,270,140,80);
+  moveMouse(120,120,270,140);
   unclickMouse(270,140);
 
-  moveMouse(270,140,200,120,50);
+  animationFrames.push({'message':'Dragging a node outside of the canvas deletes it'});
+  moveMouse(270,140,200,120);
   clickMouse(200,120);
-  moveMouse(200,120,200,-10,80);
+  moveMouse(200,120,200,-10);
   mouseLeave();
 
   pressKey('P');
+  animationFrames.push({'message':'Persist mode keeps you from dragging nodes, but makes nodes stay selected when you mouse out of them'});
 
   clickMouse(270,140);
-  moveMouse(270,140,120,120,80);
+  moveMouse(270,140,120,120);
   unclickMouse(120,120);
 
+  animationFrames.push({'message':'If there is a selected node, just type to change the text'});
   pressKey(' ');
   pressKey('C');
   pressKey('h');
@@ -163,6 +174,7 @@ function tutorial() {
 
   wait(10);
 
+  animationFrames.push({'message':'The enter key deletes all text in the selected node'});
   pressKey('Enter');
   pressKey('H');
   pressKey('e');
@@ -170,14 +182,15 @@ function tutorial() {
   pressKey('l');
   pressKey('o');
 
-  moveMouse(120,120,80,110,50);
+  animationFrames.push({'message':'Clicking empty space in persist mode deselects the selected node'});
+  moveMouse(120,120,80,110);
   clickMouse(80,110);
 
   pressKey('P');
   pressKey('S');
 
   clickMouse(80,110);
-  moveMouse(80,110,260,140,60);
+  moveMouse(80,110,260,140);
   unclickMouse(260,140);
 
   wait(10);
@@ -185,18 +198,16 @@ function tutorial() {
   pressKey('T');
 
   clickMouse(270,140);
-  moveMouse(270,140,85,120,60);
+  moveMouse(270,140,85,120);
   unclickMouse(85,120);
 
   pressKey('F');
 
-  clickMouse(320,140);
-  moveMouse(320,140,250,140,20);
-  unclickMouse(250,140);
-  moveMouse(250,140,40,40,10);
+  follow(420,240,1);
+  moveMouse(180,120,40,40);
 
   pressKey('B');
-  wait(10);
+  wait(60);
   pressKey('F');
   pressKey('B');
 
@@ -211,31 +222,31 @@ function tutorial() {
   pressKey('ArrowLeft');
   pressKey('ArrowUp');
 
-  moveMouse(40,40,-10,40,30);
+  moveMouse(40,40,-10,40);
   mouseLeave();
   pressKey('3');
-  moveMouse(40,40,-10,40,30);
+  moveMouse(40,40,-10,40);
   mouseLeave();
 
   pressKey('A');
   pressKey('P');
   pressKey('2');
-  moveMouse(360,100,380,150,30);
+  moveMouse(360,100,380,150);
   unclickMouse(270,140);
   pressKey('1');
-  moveMouse(300,120,300,150,20);
+  moveMouse(300,120,300,150);
   unclickMouse(300,150);
   pressKey('0');
-  moveMouse(220,150,290,150,20);
+  moveMouse(220,150,290,150);
   unclickMouse(290,150);
 
   pressKey('C');
   clickMouse(300,150);
-  moveMouse(300,150,370,150,40);
+  moveMouse(300,150,370,150);
   unclickMouse(370,150);
   pressKey('F');
 
-  wait(40);
+  wait(100);
 
   pressKey('Reset');
   animationFrames.push({'draw':reset});
@@ -248,21 +259,19 @@ function tutorial() {
   unclickMouse(300,150);
   pressKey('C');
   clickMouse(250,150);
-  moveMouse(250,150,210,150,50);
+  moveMouse(250,150,210,150);
   unclickMouse(210,150);
   clickMouse(300,190);
   pressKey(' ');
   pressKey('t');
   pressKey('w');
   pressKey('o');
-  moveMouse(300,190,260,150,50);
+  moveMouse(300,190,260,150);
   unclickMouse(260,150);
   pressKey('F');
   wait(40);
-  clickMouse(150,100);
-  moveMouse(150,100,300,200,50);
-  unclickMouse(300,200);
-  wait(40);
+  follow(150,100,2,true);
+  wait(100);
 
   pressKey('Reset');
   animationFrames.push({'draw':reset});
@@ -273,15 +282,15 @@ function tutorial() {
   pressKey('M');
   pressKey('N');
   clickMouse(180,280);
-  moveMouse(180,280,240,260,70);
+  moveMouse(180,280,240,260);
   unclickMouse(240,260);
   wait(10);
   clickMouse(240,260);
-  moveMouse(240,260,240,230,60);
+  moveMouse(240,260,240,230);
   unclickMouse(240,230);
   wait(10);
   pressKey('F');
-  wait(50);
+  wait(100);
 
   pressKey('Reset');
   animationFrames.push({'draw':reset});
